@@ -1,0 +1,43 @@
+#include<stdio.h>
+#include<pthread.h>
+#include<unistd.h>
+pthread_mutex_t first_mutex, second_mutex,third_mutex;
+void *process_1(){
+        pthread_mutex_lock(&first_mutex);
+        printf("RESOURCE ONE ACQUIRED");
+        sleep(1);
+        pthread_mutex_lock(&second_mutex);
+        printf("RESOURCE TWO ACQUIRED");
+        pthread_mutex_unlock(&first_mutex);
+        pthread_mutex_unlock(&second_mutex);
+}
+void *process_2(){
+        pthread_mutex_lock(&second_mutex);
+        printf("RESOURCE TWO ACQUIRED");
+        sleep(1);
+        pthread_mutex_lock(&third_mutex);
+        printf("RESOURCE THREE ACQUIRED");
+        pthread_mutex_unlock(&second_mutex);
+        pthread_mutex_unlock(&third_mutex);
+}
+void *process_3(){
+        pthread_mutex_lock(&third_mutex);
+        printf("RESOURCE THREE ACQUIRED");
+        sleep(1);
+        pthread_mutex_lock(&first_mutex);
+        printf("RESOURCE ONE ACQUIRED");
+        pthread_mutex_unlock(&third_mutex);
+        pthread_mutex_unlock(&first_mutex);
+}
+int main(){
+        pthread_t  r1,r2,r3;
+        pthread_mutex_init(&first_mutex,NULL);
+        pthread_mutex_init(&second_mutex,NULL);
+        pthread_mutex_init(&third_mutex,NULL);
+        pthread_create(&r1,NULL,process_1,NULL);
+        pthread_create(&r2,NULL,process_2,NULL);
+        pthread_create(&r3,NULL,process_3,NULL);
+        pthread_join(r1,NULL);
+        pthread_join(r2,NULL);
+        pthread_join(r3,NULL);
+}
